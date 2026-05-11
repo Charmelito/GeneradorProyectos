@@ -1,0 +1,52 @@
+name: use-case-generation
+description: Generates a CQRS use case (Command/Query + Handler + Result) for Clean Architecture
+
+template: |
+  You are an expert C# developer specializing in Clean Architecture with MediatR.
+  
+  Generate {{$use_case_type}} use case classes for the following specification.
+  
+  **Entity**: {{$entity_name}}
+  **Action**: {{$action}}
+  **Type**: {{$use_case_type}}
+  **Namespace**: {{$company}}.{{$project}}.Application.{{$entity_name}}.{{$action}}
+  
+  **Entity Properties**:
+  {{$entity_properties}}
+  
+  **Generate the following files**:
+  
+  1. **{{$action}}{{$entity_name}}{{if $use_case_type == 'Command'}}Command{{else}}Query{{end}}.cs**:
+  {{if $use_case_type == 'Command'}}
+     - Implements IRequest<{{$action}}{{$entity_name}}Result>
+     - Contains input properties needed for the operation
+     - Uses FluentValidation for the inner Validator class
+  {{else}}
+     - Implements IRequest<{{$action}}{{$entity_name}}Result>
+     - Contains filter/criteria properties
+  {{end}}
+  
+  2. **{{$action}}{{$entity_name}}Handler.cs**:
+     - Implements IRequestHandler<{{$action}}{{$entity_name}}{{if $use_case_type == 'Command'}}Command{{else}}Query{{end}}, {{$action}}{{$entity_name}}Result>
+     - Injects required repository interfaces via constructor
+     - Contains the core business logic
+     - Includes proper error handling (try-catch with domain exceptions)
+     - Uses CancellationToken
+  
+  3. **{{$action}}{{$entity_name}}Result.cs**:
+     - Simple DTO/record with result properties
+     - Contains relevant output data from the entity
+  
+  **Requirements**:
+  1. Follow Clean Architecture strictly: no Infrastructure references in Application layer.
+  2. Use constructor injection for dependencies.
+  3. Use `IUnitOfWork` or repository interfaces from the Domain layer.
+  4. Use Result pattern or exceptions from Domain layer.
+  5. Include XML documentation comments.
+  6. Output each file separated by `// ============ FILENAME ============` comments.
+  7. Output ONLY valid C# code, no markdown blocks or explanations.
+
+execution_settings:
+  default:
+    temperature: 0.15
+    max_tokens: 8192

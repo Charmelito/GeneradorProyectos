@@ -1,0 +1,129 @@
+@page "/database"
+@inject Services.ApiClient Api
+@inject NavigationManager Nav
+
+<h2>Database Connection</h2>
+
+<div class="form-panel">
+    <div class="form-group">
+        <label>Provider</label>
+        <select @bind="provider">
+            <option value="SqlServer">SQL Server</option>
+            <option value="Oracle">Oracle</option>
+            <option value="MySql">MySQL</option>
+            <option value="PostgreSql">PostgreSQL</option>
+            <option value="MongoDB">MongoDB</option>
+            <option value="CosmosDB">Cosmos DB</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Connection String</label>
+        <textarea @bind="connectionString" rows="3" placeholder="Server=localhost;Database=mydb;..."></textarea>
+    </div>
+    <div class="form-group">
+        <label>Company Name</label>
+        <input @bind="companyName" placeholder="e.g., Charmel" />
+    </div>
+    <div class="form-group">
+        <label>Project Name</label>
+        <input @bind="projectName" placeholder="e.g., ECommerce" />
+    </div>
+    <div class="form-group">
+        <label>Output Path</label>
+        <input @bind="outputPath" placeholder="C:\Projects\" />
+    </div>
+    <div class="button-row">
+        <button class="btn btn-secondary" @onclick="TestConnection" disabled="@isLoading">
+            @(isLoading ? "..." : "Test Connection")
+        </button>
+        <button class="btn btn-primary" @onclick="ReadSchema" disabled="@isLoading">
+            Read Schema
+        </button>
+        <button class="btn btn-success" @onclick="GenerateFull" disabled="@isLoading">
+            Generate Full Project
+        </button>
+    </div>
+</div>
+
+@if (statusMessage != null)
+{
+    <div class="status @(statusSuccess ? "success" : "error")">@statusMessage</div>
+}
+
+@code {
+    private string provider = "SqlServer";
+    private string connectionString = "";
+    private string companyName = "";
+    private string projectName = "";
+    private string outputPath = "";
+    private bool isLoading;
+    private string? statusMessage;
+    private bool statusSuccess;
+
+    private async Task TestConnection()
+    {
+        isLoading = true; statusMessage = null;
+        try
+        {
+            var result = await Api.TestConnectionAsync(connectionString, provider);
+            statusSuccess = result?.Connected == true;
+            statusMessage = statusSuccess ? "Connection successful!" : $"Connection failed: {result?.Error}";
+        }
+        catch (Exception ex) { statusSuccess = false; statusMessage = ex.Message; }
+        finally { isLoading = false; StateHasChanged(); }
+    }
+
+    private async Task ReadSchema()
+    {
+        isLoading = true; statusMessage = null;
+        try
+        {
+            var result = await Api.ReadSchemaAsync(connectionString, provider);
+            statusSuccess = result?.Error == null;
+            statusMessage = statusSuccess ? $"Schema read: {result?.Summary}" : result?.Error;
+            if (statusSuccess) Nav.NavigateTo("/schema");
+        }
+        catch (Exception ex) { statusSuccess = false; statusMessage = ex.Message; }
+        finally { isLoading = false; StateHasChanged(); }
+    }
+
+    private async Task GenerateFull()
+    {
+        isLoading = true; statusMessage = null;
+        try
+        {
+            var req = new Models.FullGenRequest
+            {
+                ConnectionString = connectionString, Provider = GetProviderId(),
+                CompanyName = companyName, ProjectName = projectName, OutputPath = outputPath
+            };
+            var result = await Api.GenerateFullAsync(req);
+            statusSuccess = result?.Error == null;
+            statusMessage = statusSuccess ? $"Generated: {result?.SolutionPath}" : result?.Error;
+            if (statusSuccess) Nav.NavigateTo("/files");
+        }
+        catch (Exception ex) { statusSuccess = false; statusMessage = ex.Message; }
+        finally { isLoading = false; StateHasChanged(); }
+    }
+
+    private int GetProviderId() => provider switch
+    {
+        "SqlServer" => 1, "Oracle" => 2, "MySql" => 3, "PostgreSql" => 4, "MongoDB" => 5, "CosmosDB" => 6, _ => 1
+    };
+}
+
+<style>
+    .form-panel { background: #fff; border-radius: 10px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); max-width: 700px; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 0.25rem; font-size: 0.85rem; color: #333; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }
+    .button-row { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    .btn:disabled { opacity: 0.5; cursor: default; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+    .btn-success { background: #2d6a4f; color: #fff; }
+    .status { margin-top: 1rem; padding: 0.75rem; border-radius: 6px; }
+    .status.success { background: #d8f3dc; color: #2d6a4f; }
+    .status.error { background: #fde8e8; color: #c0392b; }
+</style>

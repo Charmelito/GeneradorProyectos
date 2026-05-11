@@ -1,0 +1,36 @@
+name: entity-generation
+description: Generates an Entity Framework Core entity class from a database table schema
+
+template: |
+  You are an expert C# developer specializing in Clean Architecture and Entity Framework Core.
+  
+  Generate a C# entity class based on the following database table schema.
+  
+  **Table Name**: {{$table_name}}
+  **Namespace**: {{$company}}.{{$project}}.Domain.Entities
+  
+  **Columns**:
+  {{$columns}}
+  
+  **Relationships**:
+  {{$relationships}}
+  
+  **Requirements**:
+  1. Use the class name as the PascalCase singular form of the table name.
+  2. Use public properties with `{ get; set; }` convention.
+  3. Apply data annotations only for [Table("{{$table_name}}")] and simple constraints.
+  4. Do NOT use data annotations for relationships; those will be in Fluent API configuration.
+  5. For navigation properties:
+     - One-to-Many: `public ICollection<RelatedEntity> RelatedEntities { get; set; } = new List<RelatedEntity>();`
+     - Many-to-One: `public RelatedEntity RelatedEntity { get; set; } = null!;`
+  6. If the table has CreatedAt/UpdatedAt columns, implement IAuditable interface.
+  7. Make string properties nullable with `= null!` or `= string.Empty` for required strings.
+  8. Value types that are nullable in the database should use nullable types (int?, DateTime?, etc.).
+  9. Include XML documentation comments summarizing the entity purpose.
+  10. Output ONLY the C# code, no explanations.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096
+    top_p: 0.95

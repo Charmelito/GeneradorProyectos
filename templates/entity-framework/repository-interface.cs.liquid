@@ -1,0 +1,15 @@
+using {{ entity_namespace }};
+
+namespace {{ interface_namespace }};
+
+public interface I{{ entity_name }}Repository
+{
+    Task<{{ entity_name }}?> GetByIdAsync({{ id_type }} id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<{{ entity_name }}>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<{{ entity_name }}>> GetByFilterAsync(System.Linq.Expressions.Expression<Func<{{ entity_name }}, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<{{ entity_name }}> AddAsync({{ entity_name }} entity, CancellationToken cancellationToken = default);
+    Task<{{ entity_name }}> UpdateAsync({{ entity_name }} entity, CancellationToken cancellationToken = default);
+    Task DeleteAsync({{ entity_name }} entity, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync({{ id_type }} id, CancellationToken cancellationToken = default);
+    Task<int> CountAsync(CancellationToken cancellationToken = default);
+}

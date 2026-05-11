@@ -1,0 +1,58 @@
+@page "/"
+@inject NavigationManager Nav
+
+<h1>Generador.CharmelCodeIA</h1>
+<p class="subtitle">Generate Clean Architecture .NET projects from your database schema using AI</p>
+
+<div class="card-grid">
+    <div class="card" @onclick="GoToDatabase">
+        <div class="card-icon">DB</div>
+        <h3>Connect Database</h3>
+        <p>Oracle, SQL Server, MySQL, PostgreSQL, MongoDB, Cosmos DB</p>
+    </div>
+    <div class="card" @onclick="GoToEntities">
+        <div class="card-icon">E</div>
+        <h3>Generate Entities</h3>
+        <p>EF Core entities, Value Objects, configurations</p>
+    </div>
+    <div class="card" @onclick="GoToUseCases">
+        <div class="card-icon">UC</div>
+        <h3>Use Cases</h3>
+        <p>CQRS commands, queries, handlers</p>
+    </div>
+    <div class="card" @onclick="GoToPrompts">
+        <div class="card-icon">PT</div>
+        <h3>Prompts</h3>
+        <p>Manage AI generation templates</p>
+    </div>
+    <div class="card" @onclick="GoToDifferential">
+        <div class="card-icon">DF</div>
+        <h3>Diff Review</h3>
+        <p>Review changes before applying</p>
+    </div>
+    <div class="card" @onclick="GoToFiles">
+        <div class="card-icon">FL</div>
+        <h3>View Files</h3>
+        <p>Explore and download generated code</p>
+    </div>
+</div>
+
+@code {
+    private void GoToDatabase() => Nav.NavigateTo("/database");
+    private void GoToEntities() => Nav.NavigateTo("/entities");
+    private void GoToUseCases() => Nav.NavigateTo("/usecases");
+    private void GoToPrompts() => Nav.NavigateTo("/prompts");
+    private void GoToDifferential() => Nav.NavigateTo("/differential");
+    private void GoToFiles() => Nav.NavigateTo("/files");
+}
+
+<style>
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #666; font-size: 1rem; margin-bottom: 2rem; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .card { background: #fff; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); cursor: pointer; transition: all .15s; border-left: 4px solid transparent; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.12); border-left-color: #1a1a2e; }
+    .card-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .card h3 { margin: 0 0 0.25rem 0; font-size: 1rem; }
+    .card p { margin: 0; font-size: 0.8rem; color: #888; }
+</style>

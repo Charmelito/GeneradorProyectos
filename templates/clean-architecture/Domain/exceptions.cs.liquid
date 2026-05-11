@@ -1,0 +1,38 @@
+using {{ namespace }};
+
+namespace {{ namespace }}.Exceptions;
+
+public sealed class DomainException : Exception
+{
+    public string Code { get; }
+
+    public DomainException(string message, string code = "DOMAIN_ERROR") : base(message)
+    {
+        Code = code;
+    }
+
+    public DomainException(string message, Exception innerException, string code = "DOMAIN_ERROR")
+        : base(message, innerException)
+    {
+        Code = code;
+    }
+}
+
+public sealed class NotFoundException : DomainException
+{
+    public NotFoundException(string entityName, object id)
+        : base($"{entityName} with ID '{id}' was not found.", "NOT_FOUND")
+    {
+    }
+}
+
+public sealed class ValidationException : DomainException
+{
+    public IReadOnlyList<string> Errors { get; }
+
+    public ValidationException(IEnumerable<string> errors)
+        : base("Validation failed.", "VALIDATION_ERROR")
+    {
+        Errors = errors.ToList();
+    }
+}

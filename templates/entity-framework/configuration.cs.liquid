@@ -1,0 +1,50 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using {{ entity_namespace }};
+
+namespace {{ configuration_namespace }};
+
+public sealed class {{ entity_name }}Configuration : IEntityTypeConfiguration<{{ entity_name }}>
+{
+    public void Configure(EntityTypeBuilder<{{ entity_name }}> builder)
+    {
+        builder.ToTable("{{ table_name }}");
+
+        builder.HasKey(e => e.Id);
+
+        {{~ for column in columns ~}}
+        {{ if column.is_primary_key ~ continue ~ end }}
+
+        builder.Property(e => e.{{ column.name | string.capitalize }})
+            .HasColumnName("{{ column.sql_name }}")
+            {{~ if column.max_length > 0 ~}}
+            .HasMaxLength({{ column.max_length }})
+            {{~ end ~}}
+            {{~ if !column.is_nullable ~}}
+            .IsRequired()
+            {{~ end ~}}
+            {{~ if column.default_value ~}}
+            .HasDefaultValue("{{ column.default_value }}")
+            {{~ end ~}};
+        {{~ end ~}}
+
+        {{~ for nav in navigation_properties ~}}
+        {{ if nav.type == "Many" }}
+        builder.HasMany(e => e.{{ nav.name }})
+            .WithOne(e => e.{{ nav.inverse_property }})
+            .HasForeignKey(e => e.{{ nav.foreign_key }})
+            .OnDelete(DeleteBehavior.{{ nav.delete_behavior | default: "NoAction" }});
+        {{ else }}
+        builder.HasOne(e => e.{{ nav.name }})
+            .WithMany(e => e.{{ nav.inverse_property }})
+            .HasForeignKey(e => e.{{ nav.foreign_key }})
+            .OnDelete(DeleteBehavior.{{ nav.delete_behavior | default: "NoAction" }});
+        {{ end }}
+        {{~ end ~}}
+
+        {{~ for index in indexes ~}}
+        builder.HasIndex(e => {{ index.columns | array.join ", " }})
+            {{~ if index.is_unique ~}}.IsUnique(){{~ end ~}};
+        {{~ end ~}}
+    }
+}

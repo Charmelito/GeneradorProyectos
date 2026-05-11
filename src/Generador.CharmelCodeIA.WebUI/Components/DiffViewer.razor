@@ -1,0 +1,35 @@
+<div class="diff-viewer">
+    <div class="diff-summary">
+        <span class="tag add">+@AddedLines added</span>
+        <span class="tag remove">-@RemovedLines removed</span>
+    </div>
+    <div class="diff-lines">
+        @foreach (var line in DiffLines)
+        {
+            <div class="diff-line @(line.StartsWith('+') ? "added" : line.StartsWith('-') ? "removed" : "neutral")">
+                <code>@line</code>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Diff { get; set; } = string.Empty;
+
+    private string[] DiffLines => Diff.Split('\n');
+    private int AddedLines => DiffLines.Count(l => l.StartsWith('+') && !l.StartsWith("+++"));
+    private int RemovedLines => DiffLines.Count(l => l.StartsWith('-') && !l.StartsWith("---"));
+}
+
+<style>
+    .diff-viewer { background: #fafafa; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0; }
+    .diff-summary { padding: 0.4rem 0.75rem; border-bottom: 1px solid #e0e0e0; display: flex; gap: 1rem; }
+    .tag { font-size: 0.75rem; padding: 1px 8px; border-radius: 10px; font-weight: 600; }
+    .tag.add { background: #d8f3dc; color: #2d6a4f; }
+    .tag.remove { background: #fde8e8; color: #c0392b; }
+    .diff-lines { max-height: 400px; overflow-y: auto; }
+    .diff-line { padding: 1px 0.75rem; font-family: 'Consolas', monospace; font-size: 0.75rem; line-height: 1.6; }
+    .diff-line.added { background: #e6ffec; }
+    .diff-line.removed { background: #ffebe9; }
+    .diff-line.neutral { color: #666; }
+</style>

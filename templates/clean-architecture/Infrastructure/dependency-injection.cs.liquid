@@ -1,0 +1,37 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using {{ interface_namespace }};
+using {{ repository_namespace }};
+
+namespace {{ namespace }};
+
+public static class DependencyInjection
+{
+    public static IServiceCollection Add{{ project_name }}Infrastructure(
+        this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            {{ if database_provider == "SqlServer" }}
+            options.UseSqlServer(connectionString);
+            {{ else if database_provider == "PostgreSql" }}
+            options.UseNpgsql(connectionString);
+            {{ else if database_provider == "MySql" }}
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            {{ else }}
+            options.UseSqlServer(connectionString);
+            {{ end }}
+        });
+
+        {{~ for entity in entities ~}}
+        services.AddScoped<I{{ entity }}Repository, {{ entity }}Repository>();
+        {{~ end ~}}
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        return services;
+    }
+}

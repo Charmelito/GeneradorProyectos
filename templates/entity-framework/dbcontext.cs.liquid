@@ -1,0 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using {{ entity_namespace }};
+
+namespace {{ namespace }};
+
+public sealed class AppDbContext : DbContext
+{
+    {{~ for entity in entities ~}}
+    public DbSet<{{ entity }}> {{ entity | string.pluralize }} => Set<{{ entity }}>();
+    {{~ end ~}}
+
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        base.OnModelCreating(modelBuilder);
+    }
+}

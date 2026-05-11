@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Generador.CharmelCodeIA.Application/Generador.CharmelCodeIA.Application.csproj" />
+    <Project Path="src/Generador.CharmelCodeIA.Domain/Generador.CharmelCodeIA.Domain.csproj" />
+    <Project Path="src/Generador.CharmelCodeIA.Infrastructure/Generador.CharmelCodeIA.Infrastructure.csproj" />
+    <Project Path="src/Generador.CharmelCodeIA.WebApi/Generador.CharmelCodeIA.WebApi.csproj" />
+    <Project Path="src/Generador.CharmelCodeIA.WebUI/Generador.CharmelCodeIA.WebUI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Generador.CharmelCodeIA.Tests/Generador.CharmelCodeIA.Tests.csproj" />
+  </Folder>
+</Solution>
