@@ -1,0 +1,6 @@
+@Generador.CharmelCodeIA.WebApi_HostAddress = http://localhost:5197
+
+GET {{Generador.CharmelCodeIA.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

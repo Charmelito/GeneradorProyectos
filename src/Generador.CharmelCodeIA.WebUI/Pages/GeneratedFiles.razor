@@ -1,0 +1,94 @@
+@page "/files"
+@inject Services.ApiClient Api
+
+<h2>Generated Files</h2>
+
+<div class="files-layout">
+    <div class="file-tree">
+        <h4>Project Files</h4>
+        <div class="form-group">
+            <input @bind="projectPath" placeholder="Project path..." />
+            <button class="btn btn-primary btn-sm" @onclick="LoadFiles">Load</button>
+        </div>
+        @if (files.Any())
+        {
+            @foreach (var file in files)
+            {
+                <div class="file-item @(selectedFile == file.RelativePath ? "selected" : "")"
+                     @onclick="() => OpenFile(file.RelativePath!)">
+                    <span class="file-icon">&#x1F4C4;</span>
+                    <span class="file-path">@file.RelativePath</span>
+                </div>
+            }
+        }
+    </div>
+    <div class="file-content">
+        @if (fileContent != null)
+        {
+            <div class="file-header">
+                <strong>@selectedFile</strong>
+                <span class="file-size">@fileSize bytes</span>
+            </div>
+            <div class="file-body">
+                <pre><code>@fileContent</code></pre>
+            </div>
+            <button class="btn btn-primary" @onclick="DownloadZip">Download ZIP</button>
+        }
+        else
+        {
+            <p class="placeholder">Enter a project path to explore generated files</p>
+        }
+    </div>
+</div>
+
+@code {
+    private string projectPath = "";
+    private List<Models.FileInfoDto> files = new();
+    private string? selectedFile;
+    private string? fileContent;
+    private long fileSize;
+
+    private async Task LoadFiles()
+    {
+        var result = await Api.ListProjectFilesAsync(projectPath);
+        files = result?.Files ?? new();
+    }
+
+    private async Task OpenFile(string relativePath)
+    {
+        selectedFile = relativePath;
+        var result = await Api.ReadFileAsync(projectPath, relativePath);
+        fileContent = result?.Content;
+        fileSize = result?.Size ?? 0;
+    }
+
+    private async Task DownloadZip()
+    {
+        var bytes = await Api.DownloadZipAsync(projectPath);
+        if (bytes != null)
+        {
+            var base64 = Convert.ToBase64String(bytes);
+            // Trigger download via JS interop or navigation
+        }
+    }
+}
+
+<style>
+    .files-layout { display: grid; grid-template-columns: 300px 1fr; gap: 1rem; }
+    .file-tree, .file-content { background: #fff; border-radius: 10px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .form-group { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .form-group input { flex: 1; padding: 0.3rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.8rem; }
+    .file-item { padding: 0.3rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.8rem; display: flex; gap: 0.3rem; align-items: center; }
+    .file-item:hover { background: #f5f5f5; }
+    .file-item.selected { background: #e0e0ff; }
+    .file-icon { font-size: 0.7rem; }
+    .file-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; margin-bottom: 0.5rem; }
+    .file-size { font-size: 0.75rem; color: #888; }
+    .file-body { margin-bottom: 1rem; }
+    .file-body pre { background: #f8f8f8; padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; line-height: 1.5; white-space: pre-wrap; overflow-x: auto; margin: 0; }
+    .btn { padding: 0.4rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-sm { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+    .placeholder { color: #999; font-style: italic; text-align: center; padding: 3rem; }
+</style>

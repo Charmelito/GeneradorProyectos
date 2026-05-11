@@ -1,0 +1,43 @@
+name: nosql-entity-generation
+description: Generates entity classes for NoSQL databases (MongoDB, Cosmos DB)
+
+template: |
+  You are an expert C# developer specializing in NoSQL database design with MongoDB and Cosmos DB.
+  
+  Generate a C# entity class based on the following document schema.
+  
+  **Collection/Container**: {{$collection_name}}
+  **Database Type**: {{$database_type}}
+  **Namespace**: {{$company}}.{{$project}}.Domain.Entities
+  
+  **Fields**:
+  {{$fields}}
+  
+  **Embedded Documents**:
+  {{$embedded_documents}}
+  
+  **Array Relations**:
+  {{$array_relations}}
+  
+  **Requirements for {{$database_type}}**:
+  
+  {{if $database_type == 'MongoDB'}}
+  1. Add [BsonId] and [BsonRepresentation(BsonType.ObjectId)] on the Id property.
+  2. Use [BsonElement("field_name")] for each property.
+  3. Use [BsonIgnoreIfNull] for optional fields.
+  4. Embedded documents should be nested classes or separate classes with BsonElement attributes.
+  5. Array relations should use List<string> for ObjectId references.
+  {{else if $database_type == 'CosmosDB'}}
+  1. Add [JsonProperty("id")] on the Id property.
+  2. Add [JsonProperty("fieldName")] for camelCase serialization.
+  3. Add partition key attribute or handle it in the repository.
+  4. Use [JsonIgnore] with condition for null handling.
+  5. Embedded documents should use nested POCO classes.
+  {{end}}
+  
+  6. Output ONLY valid C# code, no explanations.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096

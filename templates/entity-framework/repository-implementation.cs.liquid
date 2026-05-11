@@ -1,0 +1,52 @@
+using Microsoft.EntityFrameworkCore;
+using {{ entity_namespace }};
+using {{ interface_namespace }};
+
+namespace {{ repository_namespace }};
+
+public sealed class {{ entity_name }}Repository : I{{ entity_name }}Repository
+{
+    private readonly AppDbContext _context;
+
+    public {{ entity_name }}Repository(AppDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<{{ entity_name }}?> GetByIdAsync({{ id_type }} id, CancellationToken cancellationToken = default) =>
+        await _context.Set<{{ entity_name }}>().FindAsync([id], cancellationToken);
+
+    public async Task<IReadOnlyList<{{ entity_name }}>> GetAllAsync(CancellationToken cancellationToken = default) =>
+        await _context.Set<{{ entity_name }}>().ToListAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<{{ entity_name }}>> GetByFilterAsync(
+        System.Linq.Expressions.Expression<Func<{{ entity_name }}, bool>> predicate,
+        CancellationToken cancellationToken = default) =>
+        await _context.Set<{{ entity_name }}>().Where(predicate).ToListAsync(cancellationToken);
+
+    public async Task<{{ entity_name }}> AddAsync({{ entity_name }} entity, CancellationToken cancellationToken = default)
+    {
+        var entry = await _context.Set<{{ entity_name }}>().AddAsync(entity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entry.Entity;
+    }
+
+    public async Task<{{ entity_name }}> UpdateAsync({{ entity_name }} entity, CancellationToken cancellationToken = default)
+    {
+        _context.Set<{{ entity_name }}>().Update(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public async Task DeleteAsync({{ entity_name }} entity, CancellationToken cancellationToken = default)
+    {
+        _context.Set<{{ entity_name }}>().Remove(entity);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> ExistsAsync({{ id_type }} id, CancellationToken cancellationToken = default) =>
+        await _context.Set<{{ entity_name }}>().AnyAsync(e => e.Id == id, cancellationToken);
+
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default) =>
+        await _context.Set<{{ entity_name }}>().CountAsync(cancellationToken);
+}

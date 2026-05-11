@@ -1,0 +1,56 @@
+@page "/entities"
+
+<h2>Entity Preview</h2>
+<p class="sub">Preview generated entities and configurations from database schema</p>
+
+<div class="code-panel">
+    <div class="code-tabs">
+        @foreach (var file in generatedFiles)
+        {
+            <button class="tab @(selectedFile == file.Key ? "active" : "")"
+                    @onclick="() => SelectFile(file.Key)">
+                @Path.GetFileName(file.Key)
+            </button>
+        }
+    </div>
+    <div class="code-area">
+        @if (selectedContent != null)
+        {
+            <pre><code>@selectedContent</code></pre>
+        }
+        else
+        {
+            <p class="placeholder">Entities will appear here after schema reading and generation.</p>
+        }
+    </div>
+</div>
+
+@code {
+    private Dictionary<string, string> generatedFiles = new();
+    private string? selectedFile;
+    private string? selectedContent;
+
+    public void LoadFiles(Dictionary<string, string> files)
+    {
+        generatedFiles = files;
+        if (files.Any() && selectedFile == null)
+            SelectFile(files.Keys.First());
+    }
+
+    private void SelectFile(string key)
+    {
+        selectedFile = key;
+        selectedContent = generatedFiles.GetValueOrDefault(key);
+    }
+}
+
+<style>
+    .sub { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
+    .code-panel { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
+    .code-tabs { display: flex; flex-wrap: wrap; background: #f0f0f0; padding: 0.25rem; gap: 0.15rem; }
+    .tab { padding: 0.4rem 0.75rem; border: none; background: transparent; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
+    .tab.active { background: #fff; font-weight: 600; }
+    .code-area { padding: 1rem; overflow-x: auto; }
+    .code-area pre { margin: 0; font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap; }
+    .placeholder { color: #999; font-style: italic; text-align: center; padding: 3rem; }
+</style>

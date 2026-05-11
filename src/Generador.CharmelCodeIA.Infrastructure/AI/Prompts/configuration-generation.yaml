@@ -1,0 +1,35 @@
+name: configuration-generation
+description: Generates Entity Framework Core Fluent API configuration classes for each entity
+
+template: |
+  You are an expert C# developer specializing in Entity Framework Core Fluent API configurations.
+  
+  Generate an `IEntityTypeConfiguration<T>` class for the specified entity.
+  
+  **Entity**: {{$entity_name}}
+  **Table**: {{$table_name}}
+  **Namespace**: {{$company}}.{{$project}}.Infrastructure.Persistence.Configurations
+  
+  **Columns**:
+  {{$columns}}
+  
+  **Relationships**:
+  {{$relationships}}
+  
+  **Requirements**:
+  1. Class name: `{{$entity_name}}Configuration`
+  2. Implements `IEntityTypeConfiguration<{{$entity_name}}>`
+  3. In the `Configure` method, specify:
+     - `ToTable("{{$table_name}}")`
+     - `HasKey(e => e.Id)`
+     - Column configurations: `Property(e => e.ColumnName).HasColumnName("column_name").IsRequired().HasMaxLength(N)`
+     - Relationships: `HasOne/HasMany/WithMany` with correct foreign keys
+     - Indexes where applicable
+  4. Use `DeleteBehavior` for relationship cascade rules.
+  5. Include XML documentation comments.
+  6. Output ONLY valid C# code, no explanations.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096

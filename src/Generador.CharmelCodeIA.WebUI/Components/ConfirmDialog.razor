@@ -1,0 +1,32 @@
+<div class="dialog-overlay @(IsVisible ? "visible" : "")">
+    <div class="dialog-box">
+        <h5>@Title</h5>
+        <p>@Message</p>
+        <div class="dialog-actions">
+            <button class="btn btn-primary" @onclick="OnConfirm">@ConfirmText</button>
+            <button class="btn btn-secondary" @onclick="OnCancel">@CancelText</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string Title { get; set; } = "Confirm Action";
+    [Parameter] public string Message { get; set; } = "Are you sure?";
+    [Parameter] public string ConfirmText { get; set; } = "Yes";
+    [Parameter] public string CancelText { get; set; } = "No";
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}
+
+<style>
+    .dialog-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); align-items: center; justify-content: center; z-index: 1000; }
+    .dialog-overlay.visible { display: flex; }
+    .dialog-box { background: #fff; border-radius: 12px; padding: 1.5rem; min-width: 300px; max-width: 500px; box-shadow: 0 8px 32px rgba(0,0,0,.15); }
+    .dialog-box h5 { margin: 0 0 0.5rem 0; }
+    .dialog-box p { margin: 0 0 1rem 0; color: #666; font-size: 0.85rem; }
+    .dialog-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .btn { padding: 0.4rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .btn-secondary { background: #e0e0e0; color: #333; }
+</style>

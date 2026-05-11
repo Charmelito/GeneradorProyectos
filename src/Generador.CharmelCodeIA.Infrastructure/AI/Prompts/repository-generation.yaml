@@ -1,0 +1,45 @@
+name: repository-generation
+description: Generates repository interface and implementation for Clean Architecture
+
+template: |
+  You are an expert C# developer specializing in the Repository pattern for Clean Architecture.
+  
+  Generate repository interface (Domain layer) and implementation (Infrastructure layer).
+  
+  **Entity**: {{$entity_name}}
+  **Database Type**: {{$database_type}}
+  **Namespace Domain**: {{$company}}.{{$project}}.Domain.Interfaces
+  **Namespace Infrastructure**: {{$company}}.{{$project}}.Infrastructure.Persistence.Repositories
+  
+  **Entity Properties**:
+  {{$entity_properties}}
+  
+  **Generate TWO files**:
+  
+  1. **I{{$entity_name}}Repository.cs** (in Domain.Interfaces):
+     - Standard CRUD methods: GetByIdAsync, GetAllAsync, AddAsync, UpdateAsync, DeleteAsync
+     - Specific query methods based on entity properties
+     - Each method returns Task<T> and accepts CancellationToken
+  
+  2. **{{$entity_name}}Repository.cs** (in Infrastructure.Persistence.Repositories):
+  {{if $database_type == 'SqlServer' || $database_type == 'Oracle' || $database_type == 'MySql' || $database_type == 'PostgreSql'}}
+     - Injects AppDbContext via constructor
+     - Uses EF Core methods: FindAsync, AddAsync, Update, Remove
+     - Calls SaveChangesAsync where appropriate
+     - Implements I{{$entity_name}}Repository
+  {{else}}
+     - Injects IMongoDatabase or Container via constructor
+     - Uses MongoDB driver / Cosmos client methods
+     - Implements I{{$entity_name}}Repository
+  {{end}}
+  
+  **Requirements**:
+  1. Use nullable reference types.
+  2. Include XML documentation comments.
+  3. Output ONLY valid C# code, separated by `// ============ FILENAME ============`.
+  4. Do NOT include the interface in the implementation file; generate both separately.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096

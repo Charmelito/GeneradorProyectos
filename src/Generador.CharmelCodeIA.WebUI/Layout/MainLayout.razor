@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <header class="top-bar">
+        <div class="brand">Generador.CharmelCodeIA</div>
+        <nav class="nav-links">
+            <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink href="/database">Database</NavLink>
+            <NavLink href="/schema">Schema</NavLink>
+            <NavLink href="/entities">Entities</NavLink>
+            <NavLink href="/usecases">Use Cases</NavLink>
+            <NavLink href="/prompts">Prompts</NavLink>
+            <NavLink href="/differential">Diff Review</NavLink>
+            <NavLink href="/files">Files</NavLink>
+        </nav>
+    </header>
+    <main class="content">
+        @Body
+    </main>
+</div>
+
+<style>
+    .page { display: flex; flex-direction: column; min-height: 100vh; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #1a1a2e; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; height: 48px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .brand { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
+    .nav-links { display: flex; gap: 0.25rem; }
+    .nav-links a { color: #aaa; text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.85rem; transition: all .15s; }
+    .nav-links a:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .nav-links a.active { color: #fff; background: rgba(255,255,255,.15); font-weight: 600; }
+    .content { flex: 1; padding: 1.5rem; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+</style>

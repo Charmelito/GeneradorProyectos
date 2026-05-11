@@ -1,0 +1,44 @@
+<div class="schema-tree">
+    <div class="tree-node root" @onclick="ToggleRoot">
+        <span class="expand-icon">@(isExpanded ? "&#x25BC;" : "&#x25B6;")</span>
+        <span class="node-icon">&#x1F4C1;</span>
+        <strong>@DatabaseName</strong>
+        <span class="count">(@Tables.Count tables)</span>
+    </div>
+    @if (isExpanded)
+    {
+        <div class="tree-children">
+            @foreach (var table in Tables)
+            {
+                <div class="tree-node table @(SelectedTable == table.Name ? "selected" : "")"
+                     @onclick="() => OnTableSelected.InvokeAsync(table.Name)">
+                    <span class="node-icon">&#x1F4C4;</span>
+                    <span>@table.Name</span>
+                    <span class="count">(@table.Columns cols)</span>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string DatabaseName { get; set; } = "Database";
+    [Parameter] public List<TableNode> Tables { get; set; } = new();
+    [Parameter] public string? SelectedTable { get; set; }
+    [Parameter] public EventCallback<string> OnTableSelected { get; set; }
+
+    private bool isExpanded = true;
+    private void ToggleRoot() => isExpanded = !isExpanded;
+}
+
+<style>
+    .schema-tree { background: #fff; border-radius: 8px; padding: 0.5rem; }
+    .tree-node { padding: 0.3rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem; }
+    .tree-node:hover { background: #f5f5f5; }
+    .tree-node.selected { background: #e0e0ff; font-weight: 600; }
+    .tree-node.table { padding-left: 1.5rem; }
+    .expand-icon { font-size: 0.65rem; width: 14px; }
+    .node-icon { font-size: 0.75rem; }
+    .count { color: #888; font-size: 0.7rem; font-weight: 400; }
+    .tree-children { border-left: 1px dashed #ddd; margin-left: 0.4rem; padding-left: 0.25rem; }
+</style>

@@ -1,0 +1,106 @@
+@page "/usecases"
+
+<h2>Use Case Configuration</h2>
+<p class="sub">Select entities and operations for CQRS use case generation</p>
+
+<div class="config-panel">
+    <div class="form-group">
+        <label>Entity Name</label>
+        <input @bind="newUseCase.EntityName" placeholder="e.g., User, Order, Product" />
+    </div>
+    <div class="form-group">
+        <label>Action</label>
+        <select @bind="newUseCase.Action">
+            <option value="Create">Create</option>
+            <option value="Update">Update</option>
+            <option value="Delete">Delete</option>
+            <option value="GetById">GetById</option>
+            <option value="GetAll">GetAll</option>
+            <option value="Search">Search</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Type</label>
+        <select @bind="newUseCase.Type">
+            <option value="Command">Command</option>
+            <option value="Query">Query</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Description</label>
+        <input @bind="newUseCase.Description" placeholder="Optional description" />
+    </div>
+    <button class="btn btn-primary" @onclick="AddUseCase">Add Use Case</button>
+</div>
+
+<div class="list-panel">
+    <h4>Configured Use Cases (@useCases.Count)</h4>
+    @if (!useCases.Any())
+    {
+        <p class="placeholder">No use cases added yet. Add some above.</p>
+    }
+    else
+    {
+        <table class="uc-table">
+            <thead><tr><th>Entity</th><th>Action</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var uc in useCases)
+                {
+                    <tr>
+                        <td>@uc.EntityName</td>
+                        <td>@uc.Action</td>
+                        <td>@uc.Type</td>
+                        <td><button class="btn-remove" @onclick="() => RemoveUseCase(uc)">X</button></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<UseCaseItem> useCases = new();
+    private UseCaseItem newUseCase = new();
+
+    private void AddUseCase()
+    {
+        if (!string.IsNullOrWhiteSpace(newUseCase.EntityName) && !string.IsNullOrWhiteSpace(newUseCase.Action))
+        {
+            useCases.Add(new UseCaseItem
+            {
+                EntityName = newUseCase.EntityName,
+                Action = newUseCase.Action,
+                Type = newUseCase.Type,
+                Description = newUseCase.Description
+            });
+            newUseCase = new();
+        }
+    }
+
+    private void RemoveUseCase(UseCaseItem uc) => useCases.Remove(uc);
+
+    private List<UseCaseItem> GetUseCases() => useCases;
+
+    private class UseCaseItem
+    {
+        public string EntityName { get; set; } = "";
+        public string Action { get; set; } = "";
+        public string Type { get; set; } = "Command";
+        public string? Description { get; set; }
+    }
+}
+
+<style>
+    .sub { color: #666; margin-bottom: 1rem; }
+    .config-panel, .list-panel { background: #fff; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 1rem; max-width: 700px; }
+    .form-group { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .form-group label { min-width: 100px; font-weight: 600; font-size: 0.85rem; }
+    .form-group input, .form-group select { flex: 1; padding: 0.4rem; border: 1px solid #ddd; border-radius: 6px; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #1a1a2e; color: #fff; }
+    .uc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .uc-table th { text-align: left; padding: 0.5rem; border-bottom: 2px solid #eee; }
+    .uc-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #f5f5f5; }
+    .btn-remove { border: none; background: #fee; color: #c0392b; cursor: pointer; border-radius: 4px; padding: 0.15rem 0.5rem; }
+    .placeholder { color: #999; font-style: italic; }
+</style>

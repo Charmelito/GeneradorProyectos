@@ -1,0 +1,126 @@
+@page "/schema"
+@inject Services.ApiClient Api
+
+<h2>Schema Explorer</h2>
+
+@if (schemaSummary != null)
+{
+    <div class="summary-bar">@schemaSummary</div>
+}
+
+<div class="explorer-panel">
+    <div class="tree-panel">
+        <h4>Tables / Collections</h4>
+        <div class="tree-node" style="padding-left:0">
+            <span class="node-icon">&#x1F4C1;</span> <strong>Database</strong>
+            <ul class="tree-list">
+                @foreach (var table in tables)
+                {
+                    <li @onclick="() => SelectTable(table)" class="tree-item @(selectedTable == table ? "selected" : "")">
+                        &#x1F4C4; @table
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="detail-panel">
+        @if (selectedTable != null)
+        {
+            <h4>@selectedTable</h4>
+            <table class="detail-table">
+                <thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>PK</th><th>FK</th></tr></thead>
+                <tbody>
+                    @foreach (var col in selectedColumns)
+                    {
+                        <tr>
+                            <td>@col.Name</td>
+                            <td>@col.SqlType</td>
+                            <td>@(col.IsNullable ? "Yes" : "No")</td>
+                            <td>@(col.IsPrimaryKey ? "&#x2705;" : "")</td>
+                            <td>@(col.IsForeignKey ? "&#x1F517;" : "")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="placeholder">Select a table to view columns</p>
+        }
+    </div>
+</div>
+
+@code {
+    private string? schemaSummary;
+    private List<string> tables = new();
+    private string? selectedTable;
+    private List<ColumnInfo> selectedColumns = new();
+    private object? cachedSchema;
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    public void LoadSchema(object schema, string summary)
+    {
+        schemaSummary = summary;
+        cachedSchema = schema;
+        tables = ExtractTables(schema);
+        StateHasChanged();
+    }
+
+    private void SelectTable(string tableName)
+    {
+        selectedTable = tableName;
+        selectedColumns = ExtractColumns(cachedSchema, tableName);
+    }
+
+    private List<string> ExtractTables(object? schema)
+    {
+        if (schema is System.Text.Json.JsonElement je && je.TryGetProperty("tables", out var ta) && ta.ValueKind == System.Text.Json.JsonValueKind.Array)
+            return ta.EnumerateArray().Select(t => t.GetProperty("name").GetString() ?? "").Where(n => !string.IsNullOrEmpty(n)).ToList();
+        return new();
+    }
+
+    private List<ColumnInfo> ExtractColumns(object? schema, string tableName)
+    {
+        if (schema is System.Text.Json.JsonElement je && je.TryGetProperty("tables", out var ta))
+        {
+            var table = ta.EnumerateArray().FirstOrDefault(t => t.GetProperty("name").GetString() == tableName);
+            if (table.TryGetProperty("columns", out var cols))
+                return cols.EnumerateArray().Select(c => new ColumnInfo
+                {
+                    Name = c.GetProperty("name").GetString() ?? "",
+                    SqlType = c.GetProperty("sqlType").GetString() ?? "",
+                    IsNullable = c.TryGetProperty("isNullable", out var n) && n.GetBoolean(),
+                    IsPrimaryKey = c.TryGetProperty("isPrimaryKey", out var pk) && pk.GetBoolean(),
+                    IsForeignKey = c.TryGetProperty("isForeignKey", out var fk) && fk.GetBoolean()
+                }).ToList();
+        }
+        return new();
+    }
+
+    private class ColumnInfo
+    {
+        public string Name { get; set; } = "";
+        public string SqlType { get; set; } = "";
+        public bool IsNullable { get; set; }
+        public bool IsPrimaryKey { get; set; }
+        public bool IsForeignKey { get; set; }
+    }
+}
+
+<style>
+    .explorer-panel { display: grid; grid-template-columns: 280px 1fr; gap: 1rem; min-height: 400px; }
+    .summary-bar { background: #e8f4fd; padding: 0.5rem 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem; }
+    .tree-panel, .detail-panel { background: #fff; border-radius: 10px; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .tree-panel h4, .detail-panel h4 { margin-top: 0; }
+    .tree-list { list-style: none; padding-left: 1.5rem; margin: 0.5rem 0; }
+    .tree-item { padding: 0.3rem 0.5rem; cursor: pointer; border-radius: 4px; font-size: 0.85rem; }
+    .tree-item:hover { background: #f0f0f0; }
+    .tree-item.selected { background: #e0e0ff; font-weight: 600; }
+    .detail-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .detail-table th { text-align: left; padding: 0.4rem; border-bottom: 2px solid #eee; }
+    .detail-table td { padding: 0.35rem 0.4rem; border-bottom: 1px solid #f5f5f5; }
+    .placeholder { color: #999; font-style: italic; padding: 2rem; text-align: center; }
+</style>

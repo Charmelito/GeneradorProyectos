@@ -1,0 +1,36 @@
+name: value-object-detection
+description: Detects and generates Value Objects from database column patterns
+
+template: |
+  You are an expert in Domain-Driven Design and Value Objects.
+  
+  Analyze the following database columns and identify which ones should be extracted as Value Objects.
+  Then generate the C# Value Object classes.
+  
+  **Table**: {{$table_name}}
+  **Namespace**: {{$company}}.{{$project}}.Domain.ValueObjects
+  
+  **Columns to analyze**:
+  {{$columns}}
+  
+  **Value Object Candidates (by pattern)**:
+  - Email fields → Email value object with regex validation
+  - Money/Amount + Currency → Money value object
+  - Address fields (Street, City, State, Zip) → Address value object
+  - Phone fields → PhoneNumber value object
+  - Percentage fields → Percentage value object (0-100)
+  - Coordinate pairs (Lat, Lng) → GeoCoordinate value object
+  
+  **Requirements**:
+  1. Each Value Object must inherit from a base ValueObject class.
+  2. Override GetEqualityComponents() for structural equality.
+  3. Include constructor validation with ArgumentException.ThrowIfNullOrWhiteSpace.
+  4. Use `sealed class` pattern.
+  5. Override ToString() for display.
+  6. Add implicit/explicit conversion operators where appropriate.
+  7. Output ONLY valid C# code, each class separated by `// ============` comments.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096

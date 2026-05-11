@@ -1,0 +1,41 @@
+name: dbcontext-generation
+description: Generates an Entity Framework Core DbContext class with Fluent API configurations
+
+template: |
+  You are an expert C# developer specializing in Entity Framework Core.
+  
+  Generate an EF Core DbContext class for the following entities.
+  
+  **Project**: {{$company}}.{{$project}}
+  **Namespace**: {{$company}}.{{$project}}.Infrastructure.Persistence
+  
+  **Entities**:
+  {{$entities}}
+  
+  **Relationships**:
+  {{$relationships}}
+  
+  **Generate TWO files**:
+  
+  1. **AppDbContext.cs**:
+     - Inherits from DbContext
+     - DbSet<T> properties for each entity
+     - Constructor accepting DbContextOptions<AppDbContext>
+     - Override OnModelCreating to call ApplyConfigurationsFromAssembly
+     - Include a ConfigureConventions method if needed
+  
+  2. **DesignTimeDbContextFactory.cs** (optional, only if requested):
+     - Implements IDesignTimeDbContextFactory<AppDbContext>
+     - Reads connection string from configuration
+  
+  **Requirements**:
+  1. Use `ApplyConfigurationsFromAssembly` to load IEntityTypeConfiguration<T> classes.
+  2. Include XML documentation comments.
+  3. Use file-scoped namespaces.
+  4. Output ONLY valid C# code, each file separated by `// ============ FILENAME ============`.
+  5. Do NOT hardcode connection strings.
+
+execution_settings:
+  default:
+    temperature: 0.1
+    max_tokens: 4096

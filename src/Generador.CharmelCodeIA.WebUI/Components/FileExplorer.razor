@@ -1,0 +1,44 @@
+<div class="file-explorer">
+    @foreach (var node in FlatNodes)
+    {
+        <div class="file-node @(SelectedPath == node.Path ? "selected" : "")"
+             style="padding-left: @(node.Level * 16 + 8)px"
+             @onclick="() => OnSelect.InvokeAsync(node.Path)">
+            <span class="file-icon">@(node.IsDirectory ? "&#x1F4C1;" : "&#x1F4C4;")</span>
+            <span>@node.Name</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<string> Files { get; set; } = new();
+    [Parameter] public string? SelectedPath { get; set; }
+    [Parameter] public EventCallback<string> OnSelect { get; set; }
+
+    private List<FileNode> FlatNodes => BuildTree(Files);
+
+    private List<FileNode> BuildTree(List<string> files)
+    {
+        var nodes = new List<FileNode>();
+        var sorted = files.OrderBy(f => f).ToList();
+        foreach (var file in sorted)
+        {
+            nodes.Add(new FileNode
+            {
+                Path = file,
+                Name = Path.GetFileName(file),
+                Level = file.Count(c => c == '/' || c == '\\'),
+                IsDirectory = false
+            });
+        }
+        return nodes;
+    }
+}
+
+<style>
+    .file-explorer { max-height: 500px; overflow-y: auto; }
+    .file-node { padding: 0.25rem 0.5rem; cursor: pointer; font-size: 0.8rem; display: flex; gap: 0.3rem; align-items: center; border-radius: 4px; }
+    .file-node:hover { background: #f5f5f5; }
+    .file-node.selected { background: #e0e0ff; font-weight: 600; }
+    .file-icon { font-size: 0.7rem; }
+</style>
